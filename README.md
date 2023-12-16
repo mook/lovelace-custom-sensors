@@ -21,6 +21,8 @@ footer:
     - entity: sensor.living_room_humidity
 ```
 
+![Screenshot of the component in use](docs/screenshot.png)
+
 ## Configuration
 
 | Key        | Type   | Description                                        |
