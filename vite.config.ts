@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/card.ts"),
       formats: ["es"],
-      fileName: "sensors",
+      fileName: "custom-sensors",
     },
   },
 });

@@ -2,13 +2,17 @@
   "name": "lovelace-custom-sensors",
   "version": "0.0.0",
   "license": "Apache-2.0",
+  "engines": {
+    "node": "~20"
+  },
   "packageManager": "yarn@4.0.2",
   "type": "module",
   "module": "dist/card.js",
   "scripts": {
     "dev": "vite build --sourcemap inline && vite preview --host=127.0.0.1",
     "build": "tsc --noEmit && vite build",
-    "lint": "eslint --fix . && prettier . --write"
+    "lint": "eslint --fix . && prettier . --write",
+    "lint:check": "eslint --max-warnings=0 . && prettier . --check"
   },
   "dependencies": {
     "custom-card-helpers": "^1.9.0",

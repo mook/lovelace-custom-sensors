@@ -884,7 +884,7 @@ __metadata:
     rollup: "npm:^2.63.0"
     superstruct: "npm:^0.15.3"
     typescript: "npm:^4.5.4"
-  checksum: d49ec765c1413cd5e6b0409b279e7972082a0dcb8f207efb5d1c9a9e00eb1f622765eb8364103be4de75a86908650a3beceb066c827cde74e8cf046ed04069e9
+  checksum: 837f41b053679c89cd18c17da34e04d66d078f085ef73d4027d5c6193ae755374cdfe455b446bbc4833c3edf556f6e84ca19b2ced432d4e35a8560ec8104cfec
   languageName: node
   linkType: hard
 

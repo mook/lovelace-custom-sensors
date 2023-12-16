@@ -1,0 +1,41 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: Build release artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4 # Download baseline yarn
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: yarn
+
+      - run: yarn install
+      - run: yarn lint:check
+      - run: yarn build
+
+      - name: Upload artifact
+        # This is the "v2" tag's commit hash.
+        uses: svenstaro/upload-release-action@1beeb572c19a9242f4361f4cee78f8e0d9aec5df
+        with:
+          file: ${{ github.workspace }}/dist/custom-sensors.js
+          overwrite: true
+          make_latest: false
+
+      # Ths HACS validator only checks against the latest release.
+      - uses: hacs/action@main
+        with:
+          category: plugin

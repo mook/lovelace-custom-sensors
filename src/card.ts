@@ -14,6 +14,7 @@ import {
 } from "custom-card-helpers";
 import { state } from "lit/decorators.js";
 import { validateConfig } from "./common";
+import {} from "./editor";
 
 /**
  * SensorsCard implements a Lovelace card that displays the sensor data in a
@@ -92,7 +93,7 @@ class SensorsCard extends LitElement implements LovelaceCard {
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("./editor");
+    await customElements.whenDefined(`${TAG_NAME}-editor`);
     return document.createElement(`${TAG_NAME}-editor`) as LovelaceCardEditor;
   }
 

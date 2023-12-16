@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2023 Mook
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   HomeAssistant,
   LovelaceCardEditor,
