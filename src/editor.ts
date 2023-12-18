@@ -18,11 +18,13 @@ import {
   LovelaceItemConfig,
   SensorsCardConfig,
   SubElementEditorConfig,
-  TAG_NAME,
 } from "./types";
 import { validateConfig } from "./common";
 
-class SensorsCardEditor extends LitElement implements LovelaceCardEditor {
+export default class SensorsCardEditor
+  extends LitElement
+  implements LovelaceCardEditor
+{
   @property({ attribute: false })
   hass?: HomeAssistant;
   @property({ attribute: false })
@@ -138,10 +140,3 @@ class SensorsCardEditor extends LitElement implements LovelaceCardEditor {
     `;
   }
 }
-
-(async () => {
-  await customElements.whenDefined(TAG_NAME);
-  if (!customElements.get(`${TAG_NAME}-editor`)) {
-    customElements.define(`${TAG_NAME}-editor`, SensorsCardEditor);
-  }
-})().catch(console.error);

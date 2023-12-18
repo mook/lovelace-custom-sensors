@@ -14,13 +14,12 @@ import {
 } from "custom-card-helpers";
 import { state } from "lit/decorators.js";
 import { validateConfig } from "./common";
-import {} from "./editor";
 
 /**
  * SensorsCard implements a Lovelace card that displays the sensor data in a
  * row.
  */
-class SensorsCard extends LitElement implements LovelaceCard {
+export default class SensorsCard extends LitElement implements LovelaceCard {
   @state()
   _hass?: HomeAssistant;
   @state()
@@ -28,6 +27,16 @@ class SensorsCard extends LitElement implements LovelaceCard {
 
   readonly isPanel = false;
   editMode?: boolean;
+  /**
+   * Timer that signifies the point at which we should give up trying to refresh
+   * from not having any entities.  When this is undefined, we should not
+   * attempt a refresh.
+   */
+  protected refreshTimeout: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * If we fail to load any entities, timer used to retry.
+   */
+  protected refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
   public getCardSize(): number {
     // Size 1 when we have entities, else 0.
@@ -36,6 +45,11 @@ class SensorsCard extends LitElement implements LovelaceCard {
 
   public setConfig(config: SensorsCardConfig): void {
     validateConfig(config);
+    clearTimeout(this.refreshTimeout);
+    clearTimeout(this.refreshTimer);
+    this.refreshTimeout = setTimeout(() => {
+      clearTimeout(this.refreshTimeout);
+    }, 60_000);
     this._config = config;
   }
 
@@ -84,16 +98,35 @@ class SensorsCard extends LitElement implements LovelaceCard {
   }
 
   protected override render(): TemplateResult | typeof nothing {
+    clearTimeout(this.refreshTimer);
     if (!this._hass || !this._config) {
       return nothing;
     }
-    return html`<div id="sensors">
-      ${this.entities.map((e) => this.renderEntity(e.entity))}
-    </div>`;
+    const templates = this.entities.map((e) => this.renderEntity(e.entity));
+
+    if (this.refreshTimeout !== undefined) {
+      if (templates.length > 0 && templates.every((t) => t === nothing)) {
+        // We erroneously have no state; try again later.
+        this.refreshTimer = setTimeout(() => {
+          this.requestUpdate();
+        }, 1_000);
+      } else {
+        // We have rendered successfully.
+        clearInterval(this.refreshTimeout);
+      }
+    }
+    return html`<div id="sensors">${templates}</div>`;
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await customElements.whenDefined(`${TAG_NAME}-editor`);
+    await Promise.race([
+      new Promise((_, reject) =>
+        setTimeout(() => {
+          reject(new Error("Failed to load editor"));
+        }, 1_000),
+      ),
+      customElements.whenDefined(`${TAG_NAME}-editor`),
+    ]);
     return document.createElement(`${TAG_NAME}-editor`) as LovelaceCardEditor;
   }
 
@@ -110,14 +143,3 @@ class SensorsCard extends LitElement implements LovelaceCard {
     }
   `;
 }
-
-(async () => {
-  try {
-    await customElements.whenDefined("ha-state-label-badge");
-    if (!customElements.get(TAG_NAME)) {
-      customElements.define(TAG_NAME, SensorsCard);
-    }
-  } catch (ex) {
-    console.error(`Error registering <${TAG_NAME}>:`, ex);
-  }
-})().catch(console.error);
