@@ -517,6 +517,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sortablejs@npm:^1":
+  version: 1.15.7
+  resolution: "@types/sortablejs@npm:1.15.7"
+  checksum: 28c58d502fe66d272372b6692d62718a9581fe20dfe0447bb787d069d9eebc1ec8d6ba43d6fe6b94f248f0e2e0fc77b1a4e60ce38a43009ccde14a7a375eb3df
+  languageName: node
+  linkType: hard
+
 "@types/trusted-types@npm:^2.0.2":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
@@ -1725,12 +1732,14 @@ __metadata:
   dependencies:
     "@types/eslint": "npm:^8"
     "@types/node": "npm:20"
+    "@types/sortablejs": "npm:^1"
     "@typescript-eslint/eslint-plugin": "npm:^6.14.0"
     "@typescript-eslint/parser": "npm:^6.14.0"
     custom-card-helpers: "npm:^1.9.0"
     eslint: "npm:^8.56.0"
     lit: "npm:^3.1.0"
     prettier: "npm:^3.1.1"
+    sortablejs: "npm:^1.15.1"
     typescript: "npm:^5.3.3"
     vite: "npm:^5.0.10"
   languageName: unknown
@@ -2310,6 +2319,13 @@ __metadata:
     ip: "npm:^2.0.0"
     smart-buffer: "npm:^4.2.0"
   checksum: 43f69dbc9f34fc8220bc51c6eea1c39715ab3cfdb115d6e3285f6c7d1a603c5c75655668a5bbc11e3c7e2c99d60321fb8d7ab6f38cda6a215fadd0d6d0b52130
+  languageName: node
+  linkType: hard
+
+"sortablejs@npm:^1.15.1":
+  version: 1.15.1
+  resolution: "sortablejs@npm:1.15.1"
+  checksum: 851debae91d9f93f41ce705490999ab9fc0fa46bd08d9132647041a31bf8a3e1cd55a0629f9b16ca21879fb478b10e1ce9fa3bae61d540223ac1d3d774e300c4
   languageName: node
   linkType: hard
 

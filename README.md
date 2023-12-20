@@ -41,6 +41,9 @@ footer:
 | `type`     | string | Must be `custom:sensors-header-footer` to be used. |
 | `entities` | list   | A list of entity IDs or `entity` objects.          |
 
+Note: To use the visual editor, `entities` must be a list of objects instead
+of strings.
+
 ## Development
 
 1. This depends on NodeJS & yarn:
