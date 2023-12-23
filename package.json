@@ -9,7 +9,7 @@
   "type": "module",
   "module": "dist/card.js",
   "scripts": {
-    "dev": "vite build --sourcemap inline && vite preview --host=127.0.0.1",
+    "dev": "vite build --sourcemap inline && vite preview --host",
     "build": "tsc --noEmit && vite build",
     "lint": "eslint --fix . && prettier . --write",
     "lint:check": "eslint --max-warnings=0 . && prettier . --check"
