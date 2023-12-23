@@ -18,7 +18,7 @@ import {
   html,
   nothing,
 } from "lit";
-import { property } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { CustomElement, LovelaceItemConfig, SensorsCardConfig } from "./types";
 import { validateConfig } from "./common";
 import { repeat } from "lit/directives/repeat.js";
@@ -30,8 +30,8 @@ export default class SensorsCardEditor
 {
   @property({ attribute: false })
   hass?: HomeAssistant;
-  @property({ attribute: false })
-  config?: SensorsCardConfig;
+  @state()
+  protected config?: SensorsCardConfig;
   @property({ attribute: false })
   lovelace?: LovelaceConfig;
   protected _sortable?: Sortable;

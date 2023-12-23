@@ -10,4 +10,9 @@ export default defineConfig({
       fileName: "custom-sensors",
     },
   },
+  preview: {
+    cors: {
+      origin: true,
+    },
+  },
 });
