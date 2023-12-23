@@ -12,7 +12,7 @@ import {
   LovelaceCardEditor,
   computeStateDisplay,
 } from "custom-card-helpers";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { validateConfig } from "./common";
 
 /**
@@ -20,23 +20,13 @@ import { validateConfig } from "./common";
  * row.
  */
 export default class SensorsCard extends LitElement implements LovelaceCard {
+  @property({ attribute: false })
+  hass?: HomeAssistant;
   @state()
-  _hass?: HomeAssistant;
-  @state()
-  _config?: SensorsCardConfig;
+  config?: SensorsCardConfig;
 
   readonly isPanel = false;
   editMode?: boolean;
-  /**
-   * Timer that signifies the point at which we should give up trying to refresh
-   * from not having any entities.  When this is undefined, we should not
-   * attempt a refresh.
-   */
-  protected refreshTimeout: ReturnType<typeof setTimeout> | undefined;
-  /**
-   * If we fail to load any entities, timer used to retry.
-   */
-  protected refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
   public getCardSize(): number {
     // Size 1 when we have entities, else 0.
@@ -45,45 +35,37 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
 
   public setConfig(config: SensorsCardConfig): void {
     validateConfig(config);
-    clearTimeout(this.refreshTimeout);
-    clearTimeout(this.refreshTimer);
-    this.refreshTimeout = setTimeout(() => {
-      clearTimeout(this.refreshTimeout);
-    }, 60_000);
-    this._config = config;
-  }
-
-  get hass() {
-    if (!this._hass) {
-      throw new Error("No hass!");
-    }
-    return this._hass;
-  }
-  set hass(hass: HomeAssistant) {
-    this._hass = hass;
+    this.config = config;
   }
 
   get entities(): LovelaceItemConfig[] {
-    return (this._config?.entities ?? []).map((e) =>
+    return (this.config?.entities ?? []).map((e) =>
       typeof e === "string" ? { entity: e } : e,
     );
   }
 
   protected renderEntity(entity: string): TemplateResult | typeof nothing {
-    const state = this.hass.states[entity] as
-      | (typeof this.hass.states)[string]
-      | undefined;
+    const state = this.hass?.states[entity];
 
-    if (!state?.state) {
+    if (!this.hass) {
       return nothing;
     }
 
-    if (state.state === "unavailable") {
-      const name = state.attributes.friendly_name ?? entity;
-      const message = this.hass.localize(
-        "ui.panel.lovelace.warning.entity_unavailable",
-        { entity: name },
-      );
+    if (!state?.state || state.state === "unavailable") {
+      let message: string;
+
+      if (!state?.state) {
+        message = this.hass.localize(
+          "ui.panel.lovelace.warning.entity_not_found",
+          { entity },
+        );
+      } else {
+        const name = state.attributes.friendly_name ?? entity;
+        message = this.hass.localize(
+          "ui.panel.lovelace.warning.entity_unavailable",
+          { entity: name },
+        );
+      }
       return html`
         <hui-warning-element label=${message}> </hui-warning-element>
       `;
@@ -98,23 +80,11 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
   }
 
   protected override render(): TemplateResult | typeof nothing {
-    clearTimeout(this.refreshTimer);
-    if (!this._hass || !this._config) {
+    if (!this.hass || !this.config) {
       return nothing;
     }
     const templates = this.entities.map((e) => this.renderEntity(e.entity));
 
-    if (this.refreshTimeout !== undefined) {
-      if (templates.length > 0 && templates.every((t) => t === nothing)) {
-        // We erroneously have no state; try again later.
-        this.refreshTimer = setTimeout(() => {
-          this.requestUpdate();
-        }, 1_000);
-      } else {
-        // We have rendered successfully.
-        clearInterval(this.refreshTimeout);
-      }
-    }
     return html`<div id="sensors">${templates}</div>`;
   }
 
