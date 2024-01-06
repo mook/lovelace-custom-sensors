@@ -7,13 +7,18 @@
 import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { LovelaceItemConfig, SensorsCardConfig, TAG_NAME } from "./types";
 import {
+  ActionHandlerEvent,
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor,
   computeStateDisplay,
+  handleAction,
+  hasAction,
 } from "custom-card-helpers";
 import { property, state } from "lit/decorators.js";
 import { validateConfig } from "./common";
+import { actionHandler } from "./action-handler";
+import { classMap } from "lit/directives/class-map.js";
 
 /**
  * SensorsCard implements a Lovelace card that displays the sensor data in a
@@ -44,8 +49,27 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
     );
   }
 
-  protected renderEntity(entity: string): TemplateResult | typeof nothing {
-    const state = this.hass?.states[entity];
+  private _handleAction(ev: ActionHandlerEvent) {
+    const target = ev.currentTarget;
+    const entity = target && "entity" in target ? target.entity : undefined;
+    const actionConfig =
+      target && "actionConfig" in target ? target.actionConfig : undefined;
+
+    if (!this.hass || typeof entity !== "string" || !actionConfig) {
+      return;
+    }
+    handleAction(
+      this,
+      this.hass,
+      { ...this.config, ...actionConfig, entity },
+      ev.detail.action,
+    );
+  }
+
+  protected renderEntity(
+    item: LovelaceItemConfig,
+  ): TemplateResult | typeof nothing {
+    const state = this.hass?.states[item.entity];
 
     if (!this.hass) {
       return nothing;
@@ -57,10 +81,10 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
       if (!state?.state) {
         message = this.hass.localize(
           "ui.panel.lovelace.warning.entity_not_found",
-          { entity },
+          { entity: item.entity },
         );
       } else {
-        const name = state.attributes.friendly_name ?? entity;
+        const name = state.attributes.friendly_name ?? item;
         message = this.hass.localize(
           "ui.panel.lovelace.warning.entity_unavailable",
           { entity: name },
@@ -71,8 +95,27 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
       `;
     }
 
+    const actionConfig = {
+      tap_action: item.tap_action ??
+        this.config?.tap_action ?? { action: "more-info" },
+      hold_action: item.hold_action ?? this.config?.hold_action,
+      double_tap_action:
+        item.double_tap_action ?? this.config?.double_tap_action,
+    };
+
     return html`
-      <label class="sensor-state">
+      <label
+        class="sensor-state ${classMap({
+          "has-action": hasAction(actionConfig.tap_action),
+        })}"
+        .actionConfig=${actionConfig}
+        .entity=${item.entity}
+        @action=${this._handleAction.bind(this)}
+        .actionHandler=${actionHandler({
+          hasHold: hasAction(actionConfig.hold_action),
+          hasDoubleClick: hasAction(actionConfig.double_tap_action),
+        })}
+      >
         <ha-state-icon .state=${state}></ha-state-icon>
         ${computeStateDisplay(this.hass.localize, state, this.hass.locale)}
       </label>
@@ -83,7 +126,7 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
     if (!this.hass || !this.config) {
       return nothing;
     }
-    const templates = this.entities.map((e) => this.renderEntity(e.entity));
+    const templates = this.entities.map((e) => this.renderEntity(e));
 
     return html`<div id="sensors">${templates}</div>`;
   }
@@ -110,6 +153,9 @@ export default class SensorsCard extends LitElement implements LovelaceCard {
     }
     .sensor-state {
       margin: 0 4px 4px;
+    }
+    .sensor-state.has-action {
+      cursor: pointer;
     }
   `;
 }

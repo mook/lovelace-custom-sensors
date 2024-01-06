@@ -30,19 +30,47 @@ footer:
   entities:
     - sensor.living_room_temperature
     - entity: sensor.living_room_humidity
+      tap_action:
+        type: more-info
 ```
 
 ![Screenshot of the component in use](docs/screenshot.png)
 
 ## Configuration
 
-| Key        | Type   | Description                                        |
-| ---------- | ------ | -------------------------------------------------- |
-| `type`     | string | Must be `custom:sensors-header-footer` to be used. |
-| `entities` | list   | A list of entity IDs or `entity` objects.          |
+| Key                 | Type   | Description                                        |
+| ------------------- | ------ | -------------------------------------------------- |
+| `type`              | string | Must be `custom:sensors-header-footer` to be used. |
+| `entities`          | list   | A list of entity IDs or `entity` objects.          |
+| `tap_action`        | object | Action on tap; see [Actions](#actions).            |
+| `hold_action`       | object | Action on hold.                                    |
+| `double_tap_action` | object | Action on double tap.                              |
 
-Note: To use the visual editor, `entities` must be a list of objects instead
-of strings.
+> [!NOTE]
+> To use the visual editor, `entities` must be a list of objects instead of
+> strings.
+
+### Entities
+
+Each `entities` object can have the following:
+
+| Key                 | Type   | Description                             |
+| ------------------- | ------ | --------------------------------------- |
+| `entity`            | string | The entity ID.                          |
+| `tap_action`        | object | Action on tap; see [Actions](#actions). |
+| `hold_action`       | object | Action on hold.                         |
+| `double_tap_action` | object | Action on double tap.                   |
+
+If the various `_action` keys are not set, the element-level configuration is
+used. If it's not set at the element level, it defaults to `more-info`.
+
+### Actions
+
+It is possible to trigger actions on tap/hold/double-tap. Please see the Home
+Assistant [Actions documentation] for the available configuration; note that
+the `toggle` action is not available.
+
+[Actions documentation]: https://www.home-assistant.io/dashboards/actions/
 
 ## Development
 
